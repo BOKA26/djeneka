@@ -42,25 +42,66 @@ export const EmergencyPage: React.FC = () => {
       showToast('La géolocalisation n’est pas supportée par votre navigateur.', 'warning');
       return;
     }
-    setGeolocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCoordinates({ lat: latitude, lng: longitude });
-        setGeolocSuccess(true);
-        setGeolocating(false);
-        if (!locationName) {
-          setLocationName(`Position GPS détectée (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
-        }
-        showToast('Position GPS captée avec succès !', 'success');
-      },
-      (error) => {
-        setGeolocating(false);
-        setGeolocSuccess(false);
-        showToast('Localisation refusée. Veuillez saisir votre quartier ou repère manuellement.', 'info');
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+    
+    // Check if permission was already granted/denied
+    if (navigator.geolocation.clearWatch) {
+      // Try to get current position first
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCoordinates({ lat: latitude, lng: longitude });
+          setGeolocSuccess(true);
+          if (!locationName) {
+            setLocationName(`Position GPS détectée (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
+          }
+          showToast('Position GPS captée avec succès !', 'success');
+        },
+        (error) => {
+          // User needs to grant permission - show alert
+          showToast('Cliquez sur "Autoriser" dans la fenêtre pop-up pour partager votre position.', 'info');
+          setGeolocating(true);
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const { latitude, longitude } = position.coords;
+              setCoordinates({ lat: latitude, lng: longitude });
+              setGeolocSuccess(true);
+              setGeolocating(false);
+              if (!locationName) {
+                setLocationName(`Position GPS détectée (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
+              }
+              showToast('Position GPS captée avec succès !', 'success');
+            },
+            (err) => {
+              setGeolocating(false);
+              setGeolocSuccess(false);
+              showToast('Localisation refusée. Veuillez saisir votre quartier ou repère manuellement.', 'info');
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+          );
+        },
+        { timeout: 5000, enableHighAccuracy: true }
+      );
+    } else {
+      setGeolocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setCoordinates({ lat: latitude, lng: longitude });
+          setGeolocSuccess(true);
+          setGeolocating(false);
+          if (!locationName) {
+            setLocationName(`Position GPS détectée (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
+          }
+          showToast('Position GPS captée avec succès !', 'success');
+        },
+        (error) => {
+          setGeolocating(false);
+          setGeolocSuccess(false);
+          showToast('Localisation refusée. Veuillez saisir votre quartier ou repère manuellement.', 'info');
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    }
   };
 
   const handleSendEmergency = async (e: React.FormEvent) => {
