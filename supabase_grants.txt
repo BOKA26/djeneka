@@ -1,0 +1,13 @@
+-- Full SQL to run in Supabase SQL Editor
+-- Execute this AFTER supabase_schema.sql
+
+-- Grant explicit permissions to anon and authenticated roles
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+
+-- Grant SELECT, INSERT, UPDATE, DELETE on all tables
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
+
+-- Grant USAGE on all sequences
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
